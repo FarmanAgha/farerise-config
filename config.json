@@ -1,6 +1,6 @@
 {
-  "version": "2026-07-27.2",
-  "_comment": "FareBoost parser overrides. Every key is optional; anything absent, empty or malformed falls back to the value compiled into the app. Edits go live within 30 minutes, with no Play release and no reinstall.",
+  "version": "2026-08-03.1",
+  "_comment": "FareRise parser + behaviour overrides. Every key is optional; anything absent, empty or malformed falls back to the value compiled into the app. Edits go live within 30 minutes, with no Play release and no reinstall. THIS FILE IS LIVE FOR EVERY USER - bump version on each edit and keep git history clean so a bad value can be reverted in seconds.",
   "uber_tier_keywords": [
     "trip request",
     "new trip",
@@ -38,14 +38,33 @@
   "ocr_fare_repair_enabled": true,
   "ocr_distance_repair_enabled": true,
   "uber_wake_hold_ms": 25000,
-  "_autoaccept_comment": "A platform may run LIVE only once its audit log shows the tap landing correctly on real offers. Flip to true to graduate one - no rebuild needed. Lyft: proven 2026-07-19 plus a live tap on record. Uber: graduated 2026-07-24 - 8 clean shadow would-tap lines (Jul 21 shift, tight rect cluster ~[476,1146][572,1174]), canPerformGestures confirmed on device (capabilities=161, MotionEventInjector active); tap-time rails re-verify fare freshness and window geometry, so an unproven layout aborts instead of mis-tapping. Hopp: no audit entry of any kind - stays clamped. Cancel window is remotely tunable via autoaccept_cancel_window_ms (0-3000, driver chose 0 on 2026-07-24: race the bots; raise it here to restore a human pause without a rebuild).",
+  "_autoaccept_comment": "A platform runs LIVE only once its audit log shows the tap LANDING - not merely being sent. Lyft: proven, its Accept is a real node and performAction(ACTION_CLICK) cannot be filtered (3 confirmed LIVE TAPPED, sched->fire 3-9ms). UBER: TURNED OFF 2026-08-03. Uber's Accept is canvas with no node, so the only path is a synthetic gesture, and Uber ignores it - 0 of 4 live gesture taps ever became a ride, and all 4 goldens on 2026-08-02 ($17.14/$20.03/$19.56/$25.08) were reported accepted while OutcomeLog shows none were. Live on Uber buys nothing and is the only behaviour carrying ToS exposure. Hopp: no audit entry of any kind - stays clamped. Cancel window tunable via autoaccept_cancel_window_ms.",
   "autoaccept_live_lyft": true,
-  "autoaccept_live_uber": true,
+  "autoaccept_live_uber": false,
   "autoaccept_live_hopp": false,
   "golden_min_fare": 10.0,
   "autoaccept_cancel_window_ms": 0,
   "autoaccept_min_perhr": 37,
   "autoaccept_min_perkm": 1.0,
   "_autoaccept_threshold_comment": "Auto-accept ANY green (ACCEPT) offer at or above BOTH bars ($/hr and $/km), on top of goldens. Driver ask 2026-07-27. Both must be >0 or the feature is off. Only pays where the tap lands: Lyft click works; Uber tap is under test (node-click). Raise/lower here, no rebuild.",
-  "autoaccept_min_fare": 15
+  "autoaccept_min_fare": 15,
+  "ocr_postal_repair_enabled": true,
+  "_ocr_postal_comment": "Repairs an OCR S->$ garble in Uber postal codes ('M1K 4$9' -> 'M1K 4S9'). The stray $ used to open a false fare slot. Set false if it ever mangles a real value.",
+  "require_two_legs_node_platforms": true,
+  "_two_legs_comment": "Lyft and Hopp always render BOTH a pickup leg and a trip leg. When only one is on the tree the sheet is still drawing, and taking that single line as the trip collapsed a 20km Scarborough->Downtown into '1.4km/2min' and carded it at $161/hr. With this true the parse is held as incomplete and retried instead. Set false to restore the old single-line behaviour if cards ever stop appearing.",
+  "uber_burst_while_onscreen": true,
+  "uber_estimate_city_kmh": 30.0,
+  "gps_coverage_min": 1.0,
+  "_gps_coverage_comment": "GPS km must exceed paid-trip km; below this multiple of paid km the day is treated as tracking-gapped and fuel is billed on paid km instead, so Net is not overstated. 0 disables.",
+  "accept_labels": [
+    "accept",
+    "accept trip"
+  ],
+  "_accept_labels_comment": "Exact lowercase match for the Accept control on all three apps. If a platform renames its button, auto-accept dies silently until this list is updated - which is why it lives here and not in the APK. Keep it EXACT-match only: adding 'accept' as a substring would match 'Auto-accept', 'Accepted' and Lyft's 'Accept invite'.",
+  "driver_app_packages": {
+    "uber": "com.ubercab.driver",
+    "lyft": "com.lyft.android.driver",
+    "hopp": "com.hopp.driver"
+  },
+  "_packages_comment": "Watched driver apps. Lets a package rename, or a fourth platform, ship without a Play release."
 }
