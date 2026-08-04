@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-03.2",
+  "version": "2026-08-04.1",
   "_comment": "FareRise parser + behaviour overrides. Every key is optional; anything absent, empty or malformed falls back to the value compiled into the app. Edits go live within 30 minutes, with no Play release and no reinstall. THIS FILE IS LIVE FOR EVERY USER - bump version on each edit and keep git history clean so a bad value can be reverted in seconds.",
   "uber_tier_keywords": [
     "trip request",
@@ -70,5 +70,8 @@
   "verdict_min_fare": 10.0,
   "_verdict_min_fare_comment": "Below this fare the card cannot say ACCEPT - it says BORDERLINE. The offer still shows, still buzzes, still carries every number; it just stops presenting itself as a clear yes. $/hr on a short job assumes the next paid ride starts the instant this one ends, which it never does, so small fares quote a rate they cannot hold. On the driver's own 964-offer log a $10 floor cut ACCEPT cards from 425 to 181 and lifted precision from 10.3% to 19.7%, costing 5 genuine takes out of 28. Raise to 12 for a stricter card, 0 to disable.",
   "verdict_dead_minutes": 15.0,
-  "_verdict_dead_comment": "Minutes of unpaid wait attributed to each trip. COMPUTED AND LOGGED ONLY - it does not move the verdict yet. Wiring it in without re-deriving the driver's min $/hr turned 833 of 964 historical offers into SKIP and downgraded 28 of the 35 rides actually taken, because that bar is calibrated against engaged time. Measured ~15 min on this driver (33 min per accepted trip vs 18 min engaged). Left here so realPerHr accumulates in the log for the calibration pass."
+  "_verdict_dead_comment": "Minutes of unpaid wait attributed to each trip. COMPUTED AND LOGGED ONLY - it does not move the verdict yet. Wiring it in without re-deriving the driver's min $/hr turned 833 of 964 historical offers into SKIP and downgraded 28 of the 35 rides actually taken, because that bar is calibrated against engaged time. Measured ~15 min on this driver (33 min per accepted trip vs 18 min engaged). Left here so realPerHr accumulates in the log for the calibration pass.",
+  "lyft_rate_crosscheck_enabled": true,
+  "lyft_rate_crosscheck_tolerance": 0.18,
+  "_lyft_rate_crosscheck_comment": "Lyft prints '$X/hr est. rate for this ride' on every live offer, and across every capture on file it is EXACTLY fare/((tripMin+pickupMin)/60) - ten of ten to the cent. So the sheet independently states how long Lyft thinks the job takes. If our parsed minutes imply a different rate by more than this fraction, we misread the sheet and the frame is DISCARDED (never repaired - rewriting node text on a platform that gives exact values is how invented money gets carded). The partial-retry then reads the next frame. Caught the 2026-08-03 19:24 case: $13.87 read as 2.4km/5min on a York->Mississauga run, carded at $69.30/hr as GOLD. Raise the tolerance if real cards start being dropped; set enabled false to switch the check off entirely."
 }
