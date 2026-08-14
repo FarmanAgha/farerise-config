@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-14.1",
+  "version": "2026-08-14.2",
   "_comment": "FareRise parser + behaviour overrides. Every key is optional; anything absent, empty or malformed falls back to the value compiled into the app. Edits go live within 30 minutes, with no Play release and no reinstall. THIS FILE IS LIVE FOR EVERY USER - bump version on each edit and keep git history clean so a bad value can be reverted in seconds.",
   "uber_tier_keywords": [
     "trip request",
@@ -42,6 +42,8 @@
   "autoaccept_live_lyft": true,
   "autoaccept_live_uber": false,
   "autoaccept_live_hopp": false,
+  "uber_tap_ms": 220,
+  "_uber_tap_ms_comment": "Duration of the synthetic Accept stroke on Uber, in ms. Raised 120 -> 220 on 2026-08-14 as the FIRST lever after three live taps came back 1 landed / 2 GESTURE DID NOT LAND with a completed stroke, sched->fire 1-2ms and the tap point dead centre of the OCR'd Accept rect. Coordinates are therefore near-ruled-out and 120ms may simply sit under the view's touch-slop or press-duration threshold. Uber is in SHADOW while this is tested, so the audit log records what WOULD have been tapped without risking a golden. If a longer press does not change the outcome, the next lever is the tap point, not this.",
   "golden_min_fare": 10.0,
   "autoaccept_cancel_window_ms": 0,
   "autoaccept_min_perhr": 37,
